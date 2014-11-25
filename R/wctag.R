@@ -22,8 +22,8 @@ wcparams <- function(gen = c("PAT", "Splash"))  {
 ##' @param params parameters for WC tag
 ##' @param offset offset value for additive component, defaults to zero
 wc <- function(params, offset = 0) {
-  function(Z) {
     if (is.null(offset)) offset <- params["p3"]
+  function(Z) {
     offset + params["p2"] * exp(1)^(-exp(1)^((Z - params["p0"]) * params["p1"]))
   }
 }
