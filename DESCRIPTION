@@ -1,0 +1,10 @@
+Package: WCtag
+Type: Package
+Title: R Tools for Wildlife Computer tags
+Version: 0.0-1
+Authors@R: c(person("Michael D.","Sumner", role = c("aut", "cre"),
+    email = "mdsumner@gmail.com"))
+Description: R tools for Wildlife Computer tags.
+NeedsCompilation: no
+ByteCompile: yes
+License: GPL-3
