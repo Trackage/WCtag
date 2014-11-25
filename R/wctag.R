@@ -14,7 +14,8 @@ wcparams <- function(gen = c("PAT", "Splash"))  {
   ## p1 is gradient
   ## p2 is range
   ## p3 is cloud cover / offset
-  list(PAT = c(p0 = 97.1, p1 = 0.21, p2 = 126, p3 = NA_real_), 
+  switch(gen, 
+      PAT = c(p0 = 97.1, p1 = 0.21, p2 = 126, p3 = NA_real_), 
        Splash = c(p0 = 97.1, p1 = 0.35, p2 = 126, p3 = NA_real_))
 }
 
