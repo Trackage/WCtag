@@ -1,3 +1,15 @@
+#' R Tools for Wildlife Computer Tags
+#'
+#' R Tools for Wildlife Computer Tags, in support of the \pkg{SGAT} and
+#' \pkg{tripEstimation} packages.
+#'
+#' @name WCtag-package
+#' @docType package
+#' @author Michael D. Sumner
+NULL
+
+
+
 ##' Parameters for WC tags. 
 ##' 
 ##' The tag type \code{gen} is grouped by "PAT", "MiniPAT", "Mk10" versus "Mk9", "Splash"
