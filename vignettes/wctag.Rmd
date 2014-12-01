@@ -5,24 +5,33 @@ date: "25/11/2014"
 output: html_document
 ---
 
+The WCtag package stores tag specific details for some of the newer Wildlife Computers archival tags. 
+
 
 ```{r}
 library(SGAT)
 library(WCtag)
 
-```
-```{r}
 data(ElephantSeal2)
+data(ElephantSeal2calib)
+
 deploy <- c(158.950, -54.5)
 recapt <- deploy
-calib <- wc(wcparams(gen = "PAT"), offset = 1020)
-cfun <- with(ElephantSeal2calib, approxfun(zenith, light, rule = 2))
-with(head(ElephantSeal2, 1000L), 
+calib <- wc(wcparams(gen = "Splash"), offset = 70)
+cfun <- with(ElephantSeal1calib, approxfun(zenith, light, rule = 2))
+eks <- c(80, 85, 93, 98)
+with(head(ElephantSeal1, 1000L), 
      {
        plot(time, light)
        sol <- solar(time)
        zen <- zenith(sol, deploy[1L], deploy[2L] )
-       lines(time, cfun(zen))
+       
+       lines(time, cfun(zen), col = "red")
+       abline(h = cfun(eks), col = "red")
+       
+       lines(time, calib(zen))
+       abline(h = calib(eks), col = "black")
+      
        })
 
 ```
@@ -30,7 +39,7 @@ with(head(ElephantSeal2, 1000L),
 
 
 ```{r}
-lonlim <- c(120, 180)
+lonlim <- c(120, 220)
 latlim  <- c(-70, -45)
 
 
@@ -38,8 +47,8 @@ library(rworldxtra)
 data(countriesHigh)
 wmap <- subset(countriesHigh, SOVEREIGNT %in% c("Australia", "New Zealand", "Antarctica"))
 
-land.mask <- function(poly, xlim, ylim, n = 4L, land = TRUE) {
-  r <- raster(nrows = n * diff(ylim), ncols = n * diff(xlim),
+land.mask <- function(poly, xlim, ylim, dim = c(180, 120), land = TRUE) {
+  r <- raster(nrows = dim[2L], ncols = dim[1L],
               xmn = xlim[1L], xmx = xlim[2L],
               ymn= ylim[1L], ymx = ylim[2L],
               crs = projection(poly))
@@ -65,10 +74,10 @@ log.prior <- function(p)  {
 
 
 library(raadtools)
-##topo <- readtopo("", xylim = extent(lonlim, latlim))
-##topo[topo > 0] <- 0
+topo <- readtopo("etopo2", xylim = extent(lonlim, latlim))
+topo[topo > 0] <- 0
 
-##topo <- aggregate(topo, fact = 16, fun = mean)
+topo <- aggregate(topo, fact = 4, fun = mean)
 
 plot(expand.grid(lonlim, latlim), type = "n", asp = 1.064)
 plot(topo, add = TRUE, col = grey(seq(0, 1, length = 100)))
@@ -94,14 +103,14 @@ plot(speeds, dgamma(speeds, pag[1], pag[2], log = TRUE));abline(v = 2)
 # d2$segment[nrow(d2)] <- max(d2$segment) + 1
 # d2$segment <- unclass(factor(d2$segment))
 
-model <- curve.model(ElephantSeal2$time, ElephantSeal2$light, ElephantSeal2$segment, cfun,
+model <- curve.model(ElephantSeal1$time, ElephantSeal1$light, ElephantSeal1$segment, calib,
                      logp.x = log.prior,
                      logp.z = log.prior,
                      alpha=c(18, 26),
                      #                     beta=c(1.05, 0.05),
                      ##  beta = c(1.02, 0.04),
                      beta = pag,
-                     fixedx = c(TRUE, rep(FALSE, max(ElephantSeal2$segment) - 2L), TRUE))
+                     fixedx = c(TRUE, rep(FALSE, max(ElephantSeal1$segment) - 2L), TRUE))
 
 
 
