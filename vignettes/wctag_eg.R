@@ -1,26 +1,19 @@
----
-title: "wctag"
-author: "Michael Sumner"
-date: "25/11/2014"
-output: html_document
----
 
-The WCtag package stores tag specific details for some of the newer Wildlife Computers archival tags. 
-
-
-```{r}
 library(SGAT)
 library(WCtag)
 
 data(ElephantSeal2)
 data(ElephantSeal2calib)
 
+dc <- ElephantSeal2calib
+d <- ElephantSeal2
+
 deploy <- c(158.950, -54.5)
 recapt <- deploy
 calib <- wc(wcparams(gen = "Splash"), offset = 70)
-cfun <- with(ElephantSeal1calib, approxfun(zenith, light, rule = 2))
+cfun <- with(dc, approxfun(zenith, light, rule = 2))
 eks <- c(80, 85, 93, 98)
-with(head(ElephantSeal1, 1000L), 
+with(head(d, 1000L), 
      {
        plot(time, light)
        sol <- solar(time)
@@ -34,18 +27,18 @@ with(head(ElephantSeal1, 1000L),
       
        })
 
-```
 
+## empirical method
+calib <- cfun
 
-
-```{r}
 lonlim <- c(120, 220)
 latlim  <- c(-70, -45)
 
 
 library(rworldxtra)
 data(countriesHigh)
-wmap <- subset(countriesHigh, SOVEREIGNT %in% c("Australia", "New Zealand", "Antarctica"))
+wmap <- countriesHigh
+## subset(countriesHigh, SOVEREIGNT %in% c("Australia", "New Zealand", "Antarctica"))
 
 land.mask <- function(poly, xlim, ylim, dim = c(180, 120), land = TRUE) {
   r <- raster(nrows = dim[2L], ncols = dim[1L],
@@ -58,12 +51,13 @@ land.mask <- function(poly, xlim, ylim, dim = c(180, 120), land = TRUE) {
   xbin <- seq(xlim[1L], xlim[2L], length=ncol(r) + 1L)
   ybin <- seq(ylim[1L], ylim[2L], length=nrow(r) + 1L)
   
-  function(p) {
+  function(p, returnmask = FALSE) {
+    if (returnmask) return(r)
     r[cbind(.bincode(p[,2L], ybin),.bincode(p[,1L], xbin))]
   }
 }
 
-is.sea <- land.mask(wmap, n = 4, xlim = lonlim, ylim = latlim, land = FALSE)
+is.sea <- land.mask(wmap,  xlim = lonlim, ylim = latlim, land = FALSE)
 
 log.prior <- function(p)  {
   f <- p[,1L] >= lonlim[1L] & p[,1L] <= lonlim[2L] & p[,2L] >= latlim[1L] & p[,2L] <= latlim[2L]
@@ -74,7 +68,7 @@ log.prior <- function(p)  {
 
 
 library(raadtools)
-topo <- readtopo("etopo2", xylim = extent(lonlim, latlim))
+topo <- readtopo("etopo2", xylim = extent(lonlim, latlim), lon180 = FALSE)
 topo[topo > 0] <- 0
 
 topo <- aggregate(topo, fact = 4, fun = mean)
