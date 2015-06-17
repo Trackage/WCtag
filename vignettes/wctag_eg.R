@@ -68,7 +68,8 @@ log.prior <- function(p)  {
 
 
 library(raadtools)
-topo <- readtopo("etopo2", xylim = extent(lonlim, latlim), lon180 = FALSE)
+topo <- crop(readtopo("etopo2",  lon180 = FALSE), extent(lonlim, latlim))
+
 topo[topo > 0] <- 0
 
 topo <- aggregate(topo, fact = 4, fun = mean)
@@ -97,14 +98,14 @@ plot(speeds, dgamma(speeds, pag[1], pag[2], log = TRUE));abline(v = 2)
 # d2$segment[nrow(d2)] <- max(d2$segment) + 1
 # d2$segment <- unclass(factor(d2$segment))
 
-model <- curve.model(ElephantSeal1$time, ElephantSeal1$light, ElephantSeal1$segment, calib,
+model <- curve.model(d$time, d$light, d$segment, calib,
                      logp.x = log.prior,
                      logp.z = log.prior,
                      alpha=c(18, 26),
                      #                     beta=c(1.05, 0.05),
                      ##  beta = c(1.02, 0.04),
                      beta = pag,
-                     fixedx = c(TRUE, rep(FALSE, max(ElephantSeal1$segment) - 2L), TRUE))
+                     fixedx = c(TRUE, rep(FALSE, max(d$segment) - 2L), TRUE))
 
 
 
@@ -131,6 +132,9 @@ for (i in 2:(nrow(x0)-1)) {
 ## the first and last is known
 x0[1L, c(1L, 2L) ] <- deploy
 x0[nrow(x0), c(1, 2)] <- recapt
+
+model$x0 <- x0
+
 
 x.proposal <- mvnorm(S=diag(c(0.005,0.005, 0.05)),n=nrow(x0))
 z.proposal <- mvnorm(S=diag(c(0.005,0.005)),n=nrow(x0)-1)

@@ -1,8 +1,6 @@
 .Rproj.user
 .Rhistory
 .RData
-NAMESPACE
 *.Rproj
-man/
 vignettes/*.Rdata
 vignettes/*.Rout
